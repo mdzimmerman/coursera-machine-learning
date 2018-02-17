@@ -25,8 +25,6 @@
 
 %% Initialization
 clear ; close all; clc
-graphics_toolkit('gnuplot')
-
 
 %% ==================== Part 1: Basic Function ====================
 % Complete warmUpExercise.m
