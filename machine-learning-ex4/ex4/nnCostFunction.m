@@ -62,24 +62,48 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% forward propagation with current Theta1/2
+z2 = Theta1 * [ones(1,m); X'];
+A2 = sigmoid(z2);
+z3 = Theta2 * [ones(1,m); A2];
+A3 = sigmoid(z3);
+h = A3;
 
+% calc J (fitting terms)
+yb = zeros(m, num_labels);
+for k = 1:num_labels,
+  yk = yb(:,k) = (y==k);
+  hk = h(k,:);
+  J += sum(log(hk)*yk + log(1-hk)*(1-yk));
+endfor
+J *= -1 / m;
 
+% calc J (regularization)
+J += lambda/(2*m)*(sum(sum(Theta1(:,2:end).^2)) + ...
+        sum(sum(Theta2(:,2:end).^2)));
 
+% backpropagation
+Delta1 = zeros(size(Theta1));
+Delta2 = zeros(size(Theta2));
+for t = 1:m,
+  xt = X(t,:)';
+  yt = yb(t,:)';
+  
+  delta3 = A3(:,t) - yt;
+  Delta2 = Delta2 + delta3 * [1; A2(:,t)]';
 
+  delta2 = Theta2' * delta3 .* [0; sigmoidGradient(z2(:,t))];
+  Delta1 = Delta1 + delta2(2:end) * [1; xt]';  
+endfor
 
+Theta2_reg = lambda / m * Theta2;
+Theta2_reg(:,1) = zeros(size(Theta2,1),1);
+Theta2_grad = Delta2 / m + Theta2_reg;
 
-
-
-
-
-
-
-
-
-
-
-
-
+Theta1_reg = lambda / m * Theta1;
+Theta1_reg(:,1) = zeros(size(Theta1,1),1);
+Theta1_grad = Delta1 / m + Theta1_reg;
+  
 % -------------------------------------------------------------
 
 % =========================================================================
